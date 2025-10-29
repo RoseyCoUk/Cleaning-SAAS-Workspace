@@ -1,0 +1,78 @@
+
+> free-nextjs-admin-dashboard@2.0.2 build
+> next build
+
+   ▲ Next.js 15.2.3
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Skipping validation of types
+   Skipping linting
+   Collecting page data ...
+   Generating static pages (0/47) ...
+   Generating static pages (11/47) 
+   Generating static pages (23/47) 
+   Generating static pages (35/47) 
+ ✓ Generating static pages (47/47)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                     7.5 kB         119 kB
+├ ○ /_not-found                            157 B         101 kB
+├ ○ /alerts                                174 B         104 kB
+├ ○ /avatars                               201 B         109 kB
+├ ○ /badge                                 403 B         112 kB
+├ ○ /bar-chart                           1.78 kB         105 kB
+├ ○ /basic-tables                          201 B         109 kB
+├ ○ /billing/automated                   2.85 kB         111 kB
+├ ○ /billing/invoices                    4.68 kB         113 kB
+├ ○ /billing/payments                    3.09 kB         111 kB
+├ ○ /blank                                 180 B         104 kB
+├ ○ /buttons                               403 B         112 kB
+├ ○ /calendar                              194 B         184 kB
+├ ○ /client                                403 B         112 kB
+├ ○ /client/payments                       157 B         101 kB
+├ ○ /client/schedule                       157 B         101 kB
+├ ƒ /clients                             6.46 kB         115 kB
+├ ○ /clients/crm                         3.23 kB         111 kB
+├ ○ /clients/messaging                   4.59 kB         113 kB
+├ ƒ /documents                           4.52 kB         113 kB
+├ ○ /error-404                             201 B         109 kB
+├ ○ /expenses                            5.28 kB         119 kB
+├ ○ /expenses/import                       528 B         101 kB
+├ ○ /expenses/receipts                   2.98 kB         111 kB
+├ ○ /form-elements                         38 kB         156 kB
+├ ○ /images                                201 B         109 kB
+├ ○ /line-chart                          1.89 kB         105 kB
+├ ○ /modals                               5.2 kB         115 kB
+├ ○ /profile                             6.21 kB         119 kB
+├ ƒ /quotes                              4.48 kB         113 kB
+├ ○ /reports/customers                   3.38 kB         111 kB
+├ ○ /reports/performance                 3.19 kB         111 kB
+├ ○ /reports/revenue                     2.76 kB         111 kB
+├ ƒ /schedule                            3.02 kB         191 kB
+├ ○ /schedule/recurring                    157 B         101 kB
+├ ○ /settings                            2.96 kB         111 kB
+├ ○ /settings/integrations               3.56 kB         112 kB
+├ ○ /settings/notifications              3.73 kB         112 kB
+├ ○ /settings/services                   4.53 kB         113 kB
+├ ○ /signin                              3.72 kB         121 kB
+├ ○ /signout                             1.96 kB         110 kB
+├ ○ /signup                              3.64 kB         121 kB
+├ ○ /staff                               3.85 kB         112 kB
+├ ○ /staff/clock                           157 B         101 kB
+├ ○ /staff/payroll                         384 B         108 kB
+├ ƒ /team                                7.89 kB         119 kB
+├ ○ /team/payroll                          177 B         111 kB
+├ ○ /team/timeclock                      3.41 kB         112 kB
+└ ○ /videos                                180 B         104 kB
++ First Load JS shared by all             101 kB
+  ├ chunks/1684-58f7e4adc7520749.js      45.3 kB
+  ├ chunks/4bd1b696-56fbd2bc3ce83568.js  53.2 kB
+  └ other shared chunks (total)          2.02 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
