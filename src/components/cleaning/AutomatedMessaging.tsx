@@ -1,7 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import { EnvelopeIcon, CheckCircleIcon, EyeIcon, PencilIcon, MoreDotIcon, ChatIcon } from "@/icons";
+import { EnvelopeIcon, CheckCircleIcon, EyeIcon, PencilIcon, ChatIcon } from "@/icons";
 import { PendingMessagesQueue } from "@/components/cleaning/PendingMessagesQueue";
+import { EditMessageTemplateModal } from "@/components/cleaning/EditMessageTemplateModal";
+import { AddAutomationRuleModal } from "@/components/cleaning/AddAutomationRuleModal";
 
 interface MessageTemplate {
   id: string;
@@ -23,12 +25,18 @@ interface AutomationRule {
   description: string;
   status: "active" | "paused";
   clientCount: number;
+  trigger?: string;
+  timing?: string;
+  templateId?: string;
 }
 
 export const AutomatedMessaging = () => {
   const [activeTab, setActiveTab] = useState<"templates" | "rules" | "log" | "pending">("pending"); // Default to pending for visibility
 
-  const messageTemplates: MessageTemplate[] = [
+  // GAP-010: State management for message templates
+  const [editingTemplate, setEditingTemplate] = useState<MessageTemplate | null>(null);
+  const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [messageTemplates, setMessageTemplates] = useState<MessageTemplate[]>([
     {
       id: "1",
       name: "Weekend Reminder",
@@ -101,9 +109,12 @@ export const AutomatedMessaging = () => {
       requiresApproval: false, // ← Auto-sent, no approval needed
       template: "Hi {clientName}, our team is taking a lunch break. We'll be arriving at your location in approximately {minutesUntilArrival} minutes. Thank you for your patience!",
     },
-  ];
+  ]);
 
-  const automationRules: AutomationRule[] = [
+  // GAP-011: State management for automation rules
+  const [editingRule, setEditingRule] = useState<AutomationRule | null>(null);
+  const [showRuleModal, setShowRuleModal] = useState(false);
+  const [automationRules, setAutomationRules] = useState<AutomationRule[]>([
     {
       id: "1",
       name: "4-Week Schedule Clients",
@@ -125,7 +136,7 @@ export const AutomatedMessaging = () => {
       status: "paused",
       clientCount: 8,
     },
-  ];
+  ]);
 
   const recentMessages = [
     {
@@ -156,6 +167,90 @@ export const AutomatedMessaging = () => {
       opened: true,
     },
   ];
+
+  // GAP-010: Handler functions for template CRUD
+  const handleToggleTemplate = (id: string) => {
+    setMessageTemplates(prev =>
+      prev.map(t => t.id === id ? { ...t, enabled: !t.enabled } : t)
+    );
+  };
+
+  const handleEditTemplate = (template: MessageTemplate) => {
+    setEditingTemplate(template);
+    setShowTemplateModal(true);
+  };
+
+  const handleCreateTemplate = () => {
+    setEditingTemplate(null);
+    setShowTemplateModal(true);
+  };
+
+  const handleSaveTemplate = (templateData: Partial<MessageTemplate>) => {
+    if (editingTemplate) {
+      // Update existing template
+      setMessageTemplates(prev =>
+        prev.map(t => t.id === editingTemplate.id ? { ...t, ...templateData } : t)
+      );
+    } else {
+      // Create new template
+      const newTemplate: MessageTemplate = {
+        id: String(messageTemplates.length + 1),
+        name: templateData.name || "",
+        trigger: templateData.trigger || "",
+        timing: templateData.timing || "",
+        channel: templateData.channel || "sms",
+        enabled: templateData.enabled ?? true,
+        deliveryRate: 0,
+        openRate: 0,
+        preview: templateData.preview || "",
+        template: templateData.template,
+      };
+      setMessageTemplates(prev => [...prev, newTemplate]);
+    }
+    setShowTemplateModal(false);
+    setEditingTemplate(null);
+  };
+
+  // GAP-011: Handler functions for automation rules CRUD
+  const handleCreateRule = () => {
+    setEditingRule(null);
+    setShowRuleModal(true);
+  };
+
+  const handleEditRule = (rule: AutomationRule) => {
+    setEditingRule(rule);
+    setShowRuleModal(true);
+  };
+
+  const handleSaveRule = (ruleData: Partial<AutomationRule>) => {
+    if (editingRule) {
+      // Update existing rule
+      setAutomationRules(prev =>
+        prev.map(r => r.id === editingRule.id ? { ...r, ...ruleData } : r)
+      );
+    } else {
+      // Create new rule
+      const newRule: AutomationRule = {
+        id: String(automationRules.length + 1),
+        name: ruleData.name || "",
+        description: ruleData.description || "",
+        status: ruleData.status || "active",
+        clientCount: 0,
+        trigger: ruleData.trigger,
+        timing: ruleData.timing,
+        templateId: ruleData.templateId,
+      };
+      setAutomationRules(prev => [...prev, newRule]);
+    }
+    setShowRuleModal(false);
+    setEditingRule(null);
+  };
+
+  const handleDeleteRule = (id: string) => {
+    if (confirm("Are you sure you want to delete this automation rule?")) {
+      setAutomationRules(prev => prev.filter(r => r.id !== id));
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -245,7 +340,7 @@ export const AutomatedMessaging = () => {
                         type="checkbox"
                         className="sr-only peer"
                         checked={template.enabled}
-                        readOnly
+                        onChange={() => handleToggleTemplate(template.id)}
                       />
                       <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
                     </label>
@@ -266,7 +361,10 @@ export const AutomatedMessaging = () => {
                       <EyeIcon className="w-3 h-3 text-blue-500" />
                       {template.openRate}% opened
                     </span>
-                    <button className="ml-auto text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <button
+                      onClick={() => handleEditTemplate(template)}
+                      className="ml-auto text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                    >
                       <PencilIcon className="w-3 h-3" />
                     </button>
                   </div>
@@ -274,7 +372,10 @@ export const AutomatedMessaging = () => {
               ))}
             </div>
 
-            <button className="w-full mt-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
+            <button
+              onClick={handleCreateTemplate}
+              className="w-full mt-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
+            >
               + Create New Template
             </button>
           </div>
@@ -307,15 +408,29 @@ export const AutomatedMessaging = () => {
                     }`}>
                       {rule.status}
                     </span>
-                    <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                      <MoreDotIcon className="w-5 h-5" />
+                    <button
+                      onClick={() => handleEditRule(rule)}
+                      className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 px-2 py-1 text-sm"
+                      title="Edit rule"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDeleteRule(rule.id)}
+                      className="text-error-500 hover:text-error-600 dark:hover:text-error-400 px-2 py-1 text-sm"
+                      title="Delete rule"
+                    >
+                      Delete
                     </button>
                   </div>
                 </div>
               ))}
             </div>
 
-            <button className="w-full mt-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
+            <button
+              onClick={handleCreateRule}
+              className="w-full mt-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-500 transition-colors"
+            >
               + Add Automation Rule
             </button>
           </div>
@@ -366,6 +481,36 @@ export const AutomatedMessaging = () => {
           </div>
         )}
       </div>
+
+      {/* GAP-010: Edit/Create Template Modal */}
+      {showTemplateModal && (
+        <EditMessageTemplateModal
+          template={editingTemplate || undefined}
+          onSave={handleSaveTemplate}
+          onClose={() => {
+            setShowTemplateModal(false);
+            setEditingTemplate(null);
+          }}
+        />
+      )}
+
+      {/* GAP-011: Add/Edit Automation Rule Modal */}
+      {showRuleModal && (
+        <AddAutomationRuleModal
+          rule={editingRule || undefined}
+          onSave={handleSaveRule}
+          onClose={() => {
+            setShowRuleModal(false);
+            setEditingRule(null);
+          }}
+          availableTemplates={messageTemplates.map(t => ({
+            id: t.id,
+            name: t.name,
+            trigger: t.trigger,
+            preview: t.preview,
+          }))}
+        />
+      )}
     </div>
   );
 };

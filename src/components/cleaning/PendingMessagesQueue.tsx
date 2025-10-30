@@ -16,6 +16,7 @@ interface PendingMessage {
 }
 
 export const PendingMessagesQueue = () => {
+  const [activeTab, setActiveTab] = useState<"pending" | "approved" | "rejected" | "sent">("pending");
   const [messages, setMessages] = useState<PendingMessage[]>([
     {
       id: "1",
@@ -50,6 +51,39 @@ export const PendingMessagesQueue = () => {
       etaConfirmed: false,
       status: "pending",
     },
+    {
+      id: "4",
+      clientName: "David Wilson",
+      clientPhone: "(555) 456-7890",
+      templateName: "Service Complete",
+      scheduledFor: "2024-10-26T16:00:00",
+      message: "Hi David, your cleaning service has been completed. Thank you for choosing us! We hope to see you again soon.",
+      requiresETA: false,
+      etaConfirmed: false,
+      status: "approved",
+    },
+    {
+      id: "5",
+      clientName: "Lisa Anderson",
+      clientPhone: "(555) 567-8901",
+      templateName: "Weekend Reminder",
+      scheduledFor: "2024-10-25T18:00:00",
+      message: "Hi Lisa, this is a reminder that your home cleaning is scheduled for this weekend. See you then!",
+      requiresETA: false,
+      etaConfirmed: false,
+      status: "sent",
+    },
+    {
+      id: "6",
+      clientName: "Robert Brown",
+      clientPhone: "(555) 678-9012",
+      templateName: "Payment Reminder",
+      scheduledFor: "2024-10-26T10:00:00",
+      message: "Hi Robert, this is a reminder that your payment is due. Please contact us if you have any questions.",
+      requiresETA: false,
+      etaConfirmed: false,
+      status: "rejected",
+    },
   ]);
 
   const handleApprove = (messageId: string) => {
@@ -68,19 +102,28 @@ export const PendingMessagesQueue = () => {
     ));
   };
 
-  const pendingMessages = messages.filter(m => m.status === "pending");
-  const blockedMessages = pendingMessages.filter(m => m.requiresETA && !m.etaConfirmed);
+  // Filter messages by active tab
+  const filteredMessages = messages.filter(m => m.status === activeTab);
+  const blockedMessages = activeTab === "pending"
+    ? filteredMessages.filter(m => m.requiresETA && !m.etaConfirmed)
+    : [];
+
+  // Calculate counts for each tab
+  const pendingCount = messages.filter(m => m.status === "pending").length;
+  const approvedCount = messages.filter(m => m.status === "approved").length;
+  const rejectedCount = messages.filter(m => m.status === "rejected").length;
+  const sentCount = messages.filter(m => m.status === "sent").length;
 
   return (
     <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-800">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
-              Pending Messages
+              Messages
             </h3>
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              {pendingMessages.length} message{pendingMessages.length !== 1 ? 's' : ''} waiting for approval
+              {filteredMessages.length} {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} message{filteredMessages.length !== 1 ? 's' : ''}
             </p>
           </div>
 
@@ -90,17 +133,63 @@ export const PendingMessagesQueue = () => {
             </Badge>
           )}
         </div>
+
+        {/* Tab Navigation */}
+        <div className="flex gap-1 border-b border-gray-200 dark:border-gray-700 -mb-5 -mx-6 px-6">
+          <button
+            onClick={() => setActiveTab("pending")}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === "pending"
+                ? "border-brand-500 text-brand-600 dark:text-brand-400"
+                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+            }`}
+          >
+            Pending ({pendingCount})
+          </button>
+          <button
+            onClick={() => setActiveTab("approved")}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === "approved"
+                ? "border-brand-500 text-brand-600 dark:text-brand-400"
+                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+            }`}
+          >
+            Approved ({approvedCount})
+          </button>
+          <button
+            onClick={() => setActiveTab("rejected")}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === "rejected"
+                ? "border-brand-500 text-brand-600 dark:text-brand-400"
+                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+            }`}
+          >
+            Rejected ({rejectedCount})
+          </button>
+          <button
+            onClick={() => setActiveTab("sent")}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === "sent"
+                ? "border-brand-500 text-brand-600 dark:text-brand-400"
+                : "border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+            }`}
+          >
+            Sent ({sentCount})
+          </button>
+        </div>
       </div>
 
-      {pendingMessages.length === 0 ? (
+      {filteredMessages.length === 0 ? (
         <div className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
           <CheckCircleIcon className="h-12 w-12 mx-auto text-gray-400 dark:text-gray-600 mb-3" />
-          <p className="font-medium">No pending messages</p>
-          <p className="text-sm mt-1">All messages have been reviewed</p>
+          <p className="font-medium">No {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} messages</p>
+          <p className="text-sm mt-1">
+            {activeTab === "pending" ? "All messages have been reviewed" : `No messages in ${activeTab} status`}
+          </p>
         </div>
       ) : (
         <div className="divide-y divide-gray-200 dark:divide-gray-800">
-          {pendingMessages.map(message => {
+          {filteredMessages.map(message => {
             const isBlocked = message.requiresETA && !message.etaConfirmed;
 
             return (
@@ -147,7 +236,7 @@ export const PendingMessagesQueue = () => {
                     )}
                   </div>
 
-                  {!isBlocked && (
+                  {activeTab === "pending" && !isBlocked && (
                     <div className="flex gap-2 flex-shrink-0">
                       <button
                         onClick={() => handleApprove(message.id)}

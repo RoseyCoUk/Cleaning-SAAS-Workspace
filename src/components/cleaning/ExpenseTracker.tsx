@@ -4,6 +4,7 @@ import { BankImportModal } from "./BankImportModal";
 import { ReceiptScanner } from "./ReceiptScanner";
 import { EditExpenseModal } from "./EditExpenseModal";
 import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
+import { ExpenseDetailModal } from "./ExpenseDetailModal";
 import { exportToCSV } from "@/utils/exportUtils";
 import {
   ArrowUpIcon,
@@ -41,6 +42,7 @@ export const ExpenseTracker = () => {
   const [showReceiptScanner, setShowReceiptScanner] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [quickExpense, setQuickExpense] = useState({
     amount: "",
@@ -119,6 +121,11 @@ export const ExpenseTracker = () => {
     ));
     setShowEditModal(false);
     setSelectedExpense(null);
+  };
+
+  const handleViewDetail = (expense: Expense) => {
+    setSelectedExpense(expense);
+    setShowDetailModal(true);
   };
 
   const handleDeleteClick = (expense: Expense) => {
@@ -370,7 +377,8 @@ export const ExpenseTracker = () => {
                   return (
                     <div
                       key={expense.id}
-                      className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+                      onClick={() => handleViewDetail(expense)}
+                      className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors cursor-pointer"
                     >
                       <div className="flex items-center gap-4">
                         <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${category.color}`}>
@@ -398,13 +406,19 @@ export const ExpenseTracker = () => {
                         </div>
                         <div className="flex gap-2">
                           <button
-                            onClick={() => handleEditClick(expense)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditClick(expense);
+                            }}
                             className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
                           >
                             Edit
                           </button>
                           <button
-                            onClick={() => handleDeleteClick(expense)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteClick(expense);
+                            }}
                             className="px-3 py-1.5 text-sm border border-red-300 dark:border-red-700 text-red-600 dark:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
                           >
                             Delete
@@ -437,6 +451,27 @@ export const ExpenseTracker = () => {
           // Handle the captured receipt data here
         }}
       />
+      {selectedExpense && showDetailModal && (
+        <ExpenseDetailModal
+          expense={selectedExpense}
+          onClose={() => {
+            setShowDetailModal(false);
+            setSelectedExpense(null);
+          }}
+          onEdit={() => {
+            setShowDetailModal(false);
+            setShowEditModal(true);
+          }}
+          onDelete={() => {
+            setShowDetailModal(false);
+            setShowDeleteModal(true);
+          }}
+          onAddReceipt={() => {
+            setShowDetailModal(false);
+            setShowReceiptScanner(true);
+          }}
+        />
+      )}
       {selectedExpense && showEditModal && (
         <EditExpenseModal
           expense={selectedExpense}

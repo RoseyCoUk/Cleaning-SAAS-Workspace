@@ -115,3 +115,7 @@ export {
   CreditCardIcon,
   BankIcon,
 };
+
+// Aliases for common use cases
+export { PencilIcon as EditIcon };
+export { TrashBinIcon as TrashIcon };

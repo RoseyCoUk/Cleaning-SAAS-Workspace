@@ -1,10 +1,12 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { TimeIcon, UserCircleIcon, ArrowRightIcon } from "@/icons";
 import { JobProgressDrawer, JobProgress } from "./JobProgressDrawer";
 import Badge from "@/components/ui/badge/Badge";
 import { useInvoices } from "@/contexts/InvoiceContext";
 import { useClients } from "@/contexts/ClientContext";
+import { NewBookingModal } from "./NewBookingModal";
 import {
   generateInvoice,
   shouldGenerateInvoiceImmediately,
@@ -75,11 +77,13 @@ const appointments: Appointment[] = [
 ];
 
 export const UpcomingAppointments = () => {
+  const router = useRouter();
   const { invoices, addInvoice, addPendingBatchJob } = useInvoices();
   const { getClient } = useClients();
   const [jobProgress, setJobProgress] = useState<Map<string, JobProgress>>(new Map());
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
 
   const handleOpenDrawer = (appointment: Appointment) => {
     setSelectedAppointment(appointment);
@@ -207,6 +211,17 @@ export const UpcomingAppointments = () => {
     }
   };
 
+  // GAP-001: Handle View All navigation to Schedule page
+  const handleViewAll = () => {
+    router.push("/schedule");
+  };
+
+  // GAP-002: Handle Schedule New Appointment modal
+  const handleNewBooking = () => {
+    // Close modal on successful save
+    setShowScheduleModal(false);
+  };
+
   return (
     <div className="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
       <div className="px-6 py-5 border-b border-gray-200 dark:border-gray-800">
@@ -214,7 +229,10 @@ export const UpcomingAppointments = () => {
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
             Today&apos;s Appointments
           </h3>
-          <button className="text-sm text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300">
+          <button
+            onClick={handleViewAll}
+            className="text-sm text-brand-600 hover:text-brand-700 dark:text-brand-400 dark:hover:text-brand-300 transition-colors"
+          >
             View All
           </button>
         </div>
@@ -262,7 +280,10 @@ export const UpcomingAppointments = () => {
           ))}
         </div>
 
-        <button className="w-full mt-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-600 transition-colors">
+        <button
+          onClick={() => setShowScheduleModal(true)}
+          className="w-full mt-4 py-3 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-400 hover:border-gray-400 dark:hover:border-gray-600 transition-colors"
+        >
           + Schedule New Appointment
         </button>
       </div>
@@ -281,6 +302,14 @@ export const UpcomingAppointments = () => {
           }}
           initialProgress={jobProgress.get(selectedAppointment.id)}
           onSave={handleSaveProgress}
+        />
+      )}
+
+      {/* GAP-002: Schedule New Appointment Modal */}
+      {showScheduleModal && (
+        <NewBookingModal
+          onSave={handleNewBooking}
+          onClose={() => setShowScheduleModal(false)}
         />
       )}
     </div>

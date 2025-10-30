@@ -15,6 +15,8 @@ interface NewBookingModalProps {
 }
 
 export const NewBookingModal: React.FC<NewBookingModalProps> = ({ onSave, onClose }) => {
+  const [bookingType, setBookingType] = useState<"one-off" | "recurring">("recurring");
+  const [lastRecurringFrequency, setLastRecurringFrequency] = useState<string>("Weekly");
   const [formData, setFormData] = useState({
     clientName: "",
     service: "Regular Clean",
@@ -26,15 +28,37 @@ export const NewBookingModal: React.FC<NewBookingModalProps> = ({ onSave, onClos
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSave(formData);
+    // For one-off bookings, ensure frequency is set to "One-Off"
+    const bookingData = {
+      ...formData,
+      frequency: bookingType === "one-off" ? "One-Off" : formData.frequency
+    };
+    onSave(bookingData);
     onClose();
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+
+    // Remember recurring frequency selections
+    if (name === "frequency" && bookingType === "recurring" && value !== "One-Off") {
+      setLastRecurringFrequency(value);
+    }
+  };
+
+  const handleBookingTypeChange = (type: "one-off" | "recurring") => {
+    setBookingType(type);
+    // Auto-set frequency based on type
+    if (type === "one-off") {
+      setFormData({ ...formData, frequency: "One-Off" });
+    } else {
+      // Restore last recurring frequency when switching back
+      setFormData({ ...formData, frequency: lastRecurringFrequency });
+    }
   };
 
   return (
@@ -62,6 +86,37 @@ export const NewBookingModal: React.FC<NewBookingModalProps> = ({ onSave, onClos
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6">
           <div className="space-y-4">
+            {/* Booking Type Toggle */}
+            <div>
+              <label className="mb-3 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Booking Type
+              </label>
+              <div className="inline-flex rounded-lg border border-gray-300 dark:border-gray-700 p-1 bg-gray-50 dark:bg-gray-800/50">
+                <button
+                  type="button"
+                  onClick={() => handleBookingTypeChange("one-off")}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    bookingType === "one-off"
+                      ? "bg-white dark:bg-gray-700 text-brand-600 dark:text-brand-400 shadow-sm"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                  }`}
+                >
+                  One-Off Service
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleBookingTypeChange("recurring")}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                    bookingType === "recurring"
+                      ? "bg-white dark:bg-gray-700 text-brand-600 dark:text-brand-400 shadow-sm"
+                      : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                  }`}
+                >
+                  Recurring Booking
+                </button>
+              </div>
+            </div>
+
             {/* Client Selection */}
             <div>
               <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -96,23 +151,29 @@ export const NewBookingModal: React.FC<NewBookingModalProps> = ({ onSave, onClos
               </select>
             </div>
 
-            {/* Frequency */}
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Frequency
-              </label>
-              <select
-                name="frequency"
-                value={formData.frequency}
-                onChange={handleChange}
-                className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-800 dark:text-white"
-              >
-                <option value="Weekly">Weekly</option>
-                <option value="Bi-Weekly">Bi-Weekly</option>
-                <option value="4-Week">4-Week</option>
-                <option value="One-Off">One-Off</option>
-              </select>
-            </div>
+            {/* Recurring Details (only show for recurring bookings) */}
+            {bookingType === "recurring" && (
+              <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-gray-800/50">
+                <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+                  Recurring Schedule
+                </h3>
+                <div>
+                  <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Frequency
+                  </label>
+                  <select
+                    name="frequency"
+                    value={formData.frequency}
+                    onChange={handleChange}
+                    className="w-full rounded-lg border border-gray-300 bg-white px-4 py-2 text-gray-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+                  >
+                    <option value="Weekly">Weekly</option>
+                    <option value="Bi-Weekly">Bi-Weekly</option>
+                    <option value="4-Week">4-Week</option>
+                  </select>
+                </div>
+              </div>
+            )}
 
             {/* Date and Time */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

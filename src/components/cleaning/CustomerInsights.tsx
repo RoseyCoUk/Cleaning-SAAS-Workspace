@@ -119,14 +119,42 @@ export const CustomerInsights = () => {
     }
   ];
 
-  const satisfactionTrends = [
-    { month: "Jul", score: 4.5 },
-    { month: "Aug", score: 4.6 },
-    { month: "Sep", score: 4.6 },
-    { month: "Oct", score: 4.7 },
-    { month: "Nov", score: 4.7 },
-    { month: "Dec", score: 4.7 }
+  const allSatisfactionTrends = [
+    { month: "Jan", score: 4.3, week: 1, day: "Dec 23" },
+    { month: "Feb", score: 4.4, week: 2, day: "Dec 24" },
+    { month: "Mar", score: 4.4, week: 3, day: "Dec 25" },
+    { month: "Apr", score: 4.5, week: 4, day: "Dec 26" },
+    { month: "May", score: 4.5, week: 5, day: "Dec 27" },
+    { month: "Jun", score: 4.5, week: 6, day: "Dec 28" },
+    { month: "Jul", score: 4.5, week: 7, day: "Dec 29" },
+    { month: "Aug", score: 4.6, week: 8, day: "Jan 1" },
+    { month: "Sep", score: 4.6, week: 9, day: "Jan 2" },
+    { month: "Oct", score: 4.7, week: 10, day: "Jan 3" },
+    { month: "Nov", score: 4.7, week: 11, day: "Jan 4" },
+    { month: "Dec", score: 4.7, week: 12, day: "Jan 5" }
   ];
+
+  // GAP-023: Filter satisfaction trends based on timeframe
+  const getSatisfactionTrends = () => {
+    switch (timeframe) {
+      case "week":
+        // Show last 7 days
+        return allSatisfactionTrends.slice(-7).map(t => ({ month: t.day, score: t.score }));
+      case "month":
+        // Show last 4 weeks
+        return allSatisfactionTrends.slice(-4).map(t => ({ month: `Week ${t.week}`, score: t.score }));
+      case "quarter":
+        // Show last 3 months
+        return allSatisfactionTrends.slice(-3).map(t => ({ month: t.month, score: t.score }));
+      case "year":
+        // Show all 12 months
+        return allSatisfactionTrends.map(t => ({ month: t.month, score: t.score }));
+      default:
+        return allSatisfactionTrends.slice(-6).map(t => ({ month: t.month, score: t.score }));
+    }
+  };
+
+  const satisfactionTrends = getSatisfactionTrends();
 
   const getStatusColor = (status: string) => {
     switch (status) {

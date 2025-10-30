@@ -4,6 +4,7 @@ import { useSidebar } from "@/context/SidebarContext";
 import { TimeEntriesProvider } from "@/contexts/TimeEntriesContext";
 import { InvoiceProvider } from "@/contexts/InvoiceContext";
 import { ClientProvider } from "@/contexts/ClientContext";
+import { QuoteProvider } from "@/contexts/QuoteContext";
 import AppHeader from "@/layout/AppHeader";
 import AppSidebar from "@/layout/AppSidebar";
 import Backdrop from "@/layout/Backdrop";
@@ -24,25 +25,27 @@ export default function AdminLayout({
     : "lg:ml-[90px]";
 
   return (
-    <ClientProvider>
-      <InvoiceProvider>
-        <TimeEntriesProvider>
-          <div className="min-h-screen xl:flex">
-            {/* Sidebar and Backdrop */}
-            <AppSidebar />
-            <Backdrop />
-            {/* Main Content Area */}
-            <div
-              className={`flex-1 transition-all  duration-300 ease-in-out ${mainContentMargin}`}
-            >
-              {/* Header */}
-              <AppHeader />
-              {/* Page Content */}
-              <div className="p-4 mx-auto max-w-7xl md:p-6">{children}</div>
+    <QuoteProvider>
+      <ClientProvider>
+        <InvoiceProvider>
+          <TimeEntriesProvider>
+            <div className="min-h-screen xl:flex">
+              {/* Sidebar and Backdrop */}
+              <AppSidebar />
+              <Backdrop />
+              {/* Main Content Area */}
+              <div
+                className={`flex-1 transition-all  duration-300 ease-in-out ${mainContentMargin}`}
+              >
+                {/* Header */}
+                <AppHeader />
+                {/* Page Content */}
+                <div className="p-4 mx-auto max-w-7xl md:p-6">{children}</div>
+              </div>
             </div>
-          </div>
-        </TimeEntriesProvider>
-      </InvoiceProvider>
-    </ClientProvider>
+          </TimeEntriesProvider>
+        </InvoiceProvider>
+      </ClientProvider>
+    </QuoteProvider>
   );
 }

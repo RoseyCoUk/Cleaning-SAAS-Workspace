@@ -16,6 +16,7 @@ export interface Client {
   tags: string[];
   paymentMethod?: "auto-pay" | "invoice" | "credit-card" | "check" | "cash";
   hourlyRate?: number;
+  referralSource?: "google" | "referral" | "facebook" | "instagram" | "nextdoor" | "other"; // GAP-026: Track customer acquisition
   invoicePreferences: {
     frequency: "per_job" | "weekly" | "monthly";
     autoSend: boolean;

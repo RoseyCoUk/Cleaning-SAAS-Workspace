@@ -124,24 +124,7 @@ export const QuickActions = () => {
             })}
           </div>
 
-          <div className="mt-6 p-4 bg-brand-50 dark:bg-brand-900/10 rounded-lg">
-            <div className="flex items-start gap-3">
-              <div className="w-8 h-8 bg-brand-100 dark:bg-brand-900/20 rounded-full flex items-center justify-center flex-shrink-0">
-                <span className="text-brand-600 dark:text-brand-400 text-sm font-semibold">!</span>
-              </div>
-              <div>
-                <h5 className="text-sm font-medium text-gray-800 dark:text-white">
-                  3 Tasks Need Attention
-                </h5>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                  2 appointments to confirm, 1 payment overdue
-                </p>
-                <button className="text-xs text-brand-600 dark:text-brand-400 hover:underline mt-2">
-                  Review Tasks →
-                </button>
-              </div>
-            </div>
-          </div>
+          {/* GAP-005: Removed "Tasks Need Attention" alert - no tasks page exists */}
         </div>
       </div>
 

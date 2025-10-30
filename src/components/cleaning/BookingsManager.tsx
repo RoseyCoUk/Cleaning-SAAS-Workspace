@@ -4,6 +4,7 @@ import { PlusIcon, TableIcon, ListIcon, CheckCircleIcon, TimeIcon, DownloadIcon 
 import { NewBookingModal } from "./NewBookingModal";
 import { EditBookingModal } from "./EditBookingModal";
 import { DeleteConfirmationModal } from "./DeleteConfirmationModal";
+import { ServiceDetailDrawer, ServiceDetail } from "./ServiceDetailDrawer";
 import { exportToCSV } from "@/utils/exportUtils";
 
 type BookingStatus = "active" | "paused" | "ended";
@@ -14,11 +15,20 @@ type ViewType = "table" | "list";
 interface Booking {
   id: string;
   clientName: string;
+  clientEmail?: string;
+  clientPhone?: string;
+  clientAddress?: string;
   service: string;
   frequency: string;
   nextDate: string;
+  time?: string;
+  duration?: string;
   assignedStaff: string;
   status: BookingStatus;
+  price?: number;
+  notes?: string;
+  instructions?: string;
+  lastCompleted?: string;
 }
 
 export const BookingsManager = () => {
@@ -29,63 +39,119 @@ export const BookingsManager = () => {
   const [showNewBookingModal, setShowNewBookingModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDetailDrawer, setShowDetailDrawer] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [selectedService, setSelectedService] = useState<ServiceDetail | null>(null);
 
   // Bookings state - in production this would come from API/Context
   const [bookings, setBookings] = useState<Booking[]>([
     {
       id: "1",
       clientName: "Sarah Johnson",
+      clientEmail: "sarah@example.com",
+      clientPhone: "(555) 123-4567",
+      clientAddress: "123 Maple St, Springfield, IL 62701",
       service: "Regular Clean",
       frequency: "Weekly",
       nextDate: "Dec 23, 2024",
+      time: "9:00 AM",
+      duration: "2 hours",
       assignedStaff: "Team A",
       status: "active",
+      price: 120,
+      notes: "Regular cleaning service",
+      instructions: "Please use eco-friendly products. Key under mat.",
+      lastCompleted: "Dec 16, 2024",
     },
     {
       id: "2",
       clientName: "Michael Chen",
+      clientEmail: "michael@example.com",
+      clientPhone: "(555) 234-5678",
+      clientAddress: "456 Oak Ave, Springfield, IL 62702",
       service: "Regular Clean",
       frequency: "Bi-Weekly",
       nextDate: "Dec 25, 2024",
+      time: "10:00 AM",
+      duration: "2.5 hours",
       assignedStaff: "Team A",
       status: "active",
+      price: 150,
+      notes: "Bi-weekly service with kitchen focus",
+      instructions: "Dog friendly. Please secure side gate.",
+      lastCompleted: "Dec 11, 2024",
     },
     {
       id: "3",
       clientName: "Emily Davis",
+      clientEmail: "emily@example.com",
+      clientPhone: "(555) 345-6789",
+      clientAddress: "789 Pine Rd, Springfield, IL 62703",
       service: "Deep Clean",
       frequency: "4-Week",
       nextDate: "Jan 3, 2025",
+      time: "8:00 AM",
+      duration: "4 hours",
       assignedStaff: "Team A",
       status: "active",
+      price: 220,
+      notes: "Deep clean including baseboards and windows",
+      instructions: "Code 1234 for front door. No pets.",
+      lastCompleted: "Dec 6, 2024",
     },
     {
       id: "4",
       clientName: "Robert Wilson",
+      clientEmail: "robert@example.com",
+      clientPhone: "(555) 456-7890",
+      clientAddress: "321 Elm Dr, Springfield, IL 62704",
       service: "Regular Clean",
       frequency: "Weekly",
       nextDate: "Dec 26, 2024",
+      time: "11:00 AM",
+      duration: "2 hours",
       assignedStaff: "Team A",
       status: "paused",
+      price: 115,
+      notes: "Service paused for holidays",
+      instructions: "Ring doorbell. Cat inside - please be careful.",
+      lastCompleted: "Dec 12, 2024",
     },
     {
       id: "5",
       clientName: "Emma Rodriguez",
+      clientEmail: "emma@example.com",
+      clientPhone: "(555) 567-8901",
+      clientAddress: "654 Birch Ln, Springfield, IL 62705",
       service: "Deep Clean",
       frequency: "One-Off",
       nextDate: "Nov 2, 2024",
+      time: "9:30 AM",
+      duration: "5 hours",
       assignedStaff: "Team A",
-      status: "active",
+      status: "ended",
+      price: 275,
+      notes: "One-time deep clean - completed",
+      instructions: "Complete access provided. Large home.",
+      lastCompleted: "Nov 2, 2024",
     },
     {
       id: "6",
       clientName: "David Kim",
+      clientEmail: "david@example.com",
+      clientPhone: "(555) 678-9012",
+      clientAddress: "987 Cedar Ct, Springfield, IL 62706",
       service: "Move-Out",
       frequency: "One-Off",
       nextDate: "Nov 5, 2024",
+      time: "7:00 AM",
+      duration: "6 hours",
       assignedStaff: "Team A",
-      status: "active",
+      status: "ended",
+      price: 325,
+      notes: "Move-out clean for apartment - completed",
+      instructions: "Landlord inspection at 2 PM. All areas.",
+      lastCompleted: "Nov 5, 2024",
     },
   ]);
 
@@ -163,6 +229,61 @@ export const BookingsManager = () => {
     setBookings(bookings.filter((booking) => booking.id !== selectedBooking.id));
     setShowDeleteModal(false);
     setSelectedBooking(null);
+  };
+
+  const handleViewDetails = (booking: Booking) => {
+    // Map booking status to service detail status
+    const mapStatus = (bookingStatus: BookingStatus): ServiceDetail["status"] => {
+      switch (bookingStatus) {
+        case "active":
+          return "scheduled";
+        case "paused":
+          return "cancelled";
+        case "ended":
+          return "completed";
+        default:
+          return "scheduled";
+      }
+    };
+
+    // Convert Booking to ServiceDetail using real data
+    const serviceDetail: ServiceDetail = {
+      id: booking.id,
+      clientName: booking.clientName,
+      clientEmail: booking.clientEmail || "No email on file",
+      clientPhone: booking.clientPhone || "No phone on file",
+      clientAddress: booking.clientAddress || "No address on file",
+      service: booking.service,
+      frequency: booking.frequency,
+      date: booking.nextDate,
+      time: booking.time || "Time TBD",
+      duration: booking.duration || "Duration TBD",
+      assignedStaff: booking.assignedStaff,
+      status: mapStatus(booking.status),
+      price: booking.price || 0,
+      notes: booking.notes,
+      instructions: booking.instructions,
+      lastCompleted: booking.lastCompleted,
+      nextScheduled: booking.nextDate,
+    };
+    setSelectedService(serviceDetail);
+    setShowDetailDrawer(true);
+  };
+
+  const handleCompleteService = () => {
+    // In production, this would update the service status
+    if (selectedService) {
+      alert(`Service for ${selectedService.clientName} marked as complete!`);
+      setShowDetailDrawer(false);
+    }
+  };
+
+  const handleCancelService = () => {
+    // In production, this would update the service status
+    if (selectedService) {
+      alert(`Service for ${selectedService.clientName} has been cancelled.`);
+      setShowDetailDrawer(false);
+    }
   };
 
   const handleExportBookings = () => {
@@ -357,6 +478,7 @@ export const BookingsManager = () => {
                 {filteredBookings.map((booking) => (
                   <tr
                     key={booking.id}
+                    onClick={() => handleViewDetails(booking)}
                     className="hover:bg-gray-50 dark:hover:bg-gray-800/30 cursor-pointer transition-colors"
                   >
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -386,13 +508,28 @@ export const BookingsManager = () => {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <div className="flex items-center justify-end gap-3">
                         <button
-                          onClick={() => handleEditBooking(booking)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewDetails(booking);
+                          }}
+                          className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300"
+                        >
+                          View
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditBooking(booking);
+                          }}
                           className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300"
                         >
                           Edit
                         </button>
                         <button
-                          onClick={() => handleDeleteClick(booking)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteClick(booking);
+                          }}
                           className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                         >
                           Delete
@@ -410,6 +547,7 @@ export const BookingsManager = () => {
           {filteredBookings.map((booking) => (
             <div
               key={booking.id}
+              onClick={() => handleViewDetails(booking)}
               className="bg-white dark:bg-white/[0.03] rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 p-6 hover:shadow-md transition-shadow cursor-pointer"
             >
               <div className="flex items-start justify-between">
@@ -443,13 +581,28 @@ export const BookingsManager = () => {
                 </div>
                 <div className="flex flex-col gap-2">
                   <button
-                    onClick={() => handleEditBooking(booking)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleViewDetails(booking);
+                    }}
+                    className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 text-sm font-medium"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditBooking(booking);
+                    }}
                     className="text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 text-sm font-medium"
                   >
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDeleteClick(booking)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteClick(booking);
+                    }}
                     className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 text-sm font-medium"
                   >
                     Delete
@@ -497,6 +650,28 @@ export const BookingsManager = () => {
             setShowDeleteModal(false);
             setSelectedBooking(null);
           }}
+        />
+      )}
+
+      {/* Service Detail Drawer */}
+      {showDetailDrawer && selectedService && (
+        <ServiceDetailDrawer
+          isOpen={showDetailDrawer}
+          service={selectedService}
+          onClose={() => {
+            setShowDetailDrawer(false);
+            setSelectedService(null);
+          }}
+          onEdit={() => {
+            // In production, open edit modal with service details
+            setShowDetailDrawer(false);
+            const booking = bookings.find(b => b.id === selectedService.id);
+            if (booking) {
+              handleEditBooking(booking);
+            }
+          }}
+          onComplete={handleCompleteService}
+          onCancel={handleCancelService}
         />
       )}
     </div>

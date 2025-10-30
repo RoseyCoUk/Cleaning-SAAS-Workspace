@@ -22,6 +22,7 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ onSave, onClose 
     frequency: "Bi-weekly",
     status: "pending",
     paymentMethod: "invoice",
+    referralSource: "google", // GAP-026: Default to Google
     tags: [],
     hourlyRate: 50,
     invoicePreferences: {
@@ -56,6 +57,7 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ onSave, onClose 
       tags: formData.tags || [],
       paymentMethod: formData.paymentMethod,
       hourlyRate: formData.hourlyRate ?? 50,
+      referralSource: formData.referralSource, // GAP-026
       invoicePreferences: formData.invoicePreferences || {
         frequency: "per_job",
         autoSend: true,
@@ -198,6 +200,26 @@ export const AddClientModal: React.FC<AddClientModalProps> = ({ onSave, onClose 
                   <option value="credit-card">Credit Card</option>
                   <option value="check">Check</option>
                   <option value="cash">Cash</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  How did you hear about us?
+                </label>
+                <select
+                  value={formData.referralSource}
+                  onChange={(e) => setFormData({ ...formData, referralSource: e.target.value as Client["referralSource"] })}
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg
+                           bg-white dark:bg-gray-800 text-gray-900 dark:text-white
+                           focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                >
+                  <option value="google">Google Search</option>
+                  <option value="referral">Referral</option>
+                  <option value="facebook">Facebook</option>
+                  <option value="instagram">Instagram</option>
+                  <option value="nextdoor">Nextdoor</option>
+                  <option value="other">Other</option>
                 </select>
               </div>
             </div>

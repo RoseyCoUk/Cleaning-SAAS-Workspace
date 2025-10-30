@@ -1,6 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import { UserCircleIcon, EnvelopeIcon, CalenderIcon, DollarLineIcon, MoreDotIcon, ChatIcon, PencilIcon, TrashBinIcon } from "@/icons";
+import { SendMessageModal } from "@/components/cleaning/SendMessageModal";
+import { ClientDetailsDrawer } from "@/components/cleaning/ClientDetailsDrawer";
+import { QuoteFormModal } from "@/components/cleaning/QuoteFormModal";
+import { useQuotes } from "@/contexts/QuoteContext";
 
 interface ClientCardProps {
   client: {
@@ -23,7 +27,11 @@ interface ClientCardProps {
 }
 
 export const ClientCard: React.FC<ClientCardProps> = ({ client, onEdit, onDelete }) => {
+  const { addQuote } = useQuotes();
   const [showMenu, setShowMenu] = useState(false);
+  const [showMessageModal, setShowMessageModal] = useState(false);
+  const [showDetailsDrawer, setShowDetailsDrawer] = useState(false);
+  const [showCreateQuote, setShowCreateQuote] = useState(false);
   const getStatusColor = () => {
     switch (client.status) {
       case "active":
@@ -42,6 +50,12 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onEdit, onDelete
     if (tag.includes("week")) return "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400";
     if (tag === "Auto-pay") return "bg-green-100 text-green-700 dark:bg-green-900/20 dark:text-green-400";
     return "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400";
+  };
+
+  const handleSendMessage = (data: { templateId: string; message: string; channel: "sms" | "email"; scheduledFor?: string }) => {
+    console.log("Sending message:", data);
+    // TODO: Integrate with messaging system/API
+    setShowMessageModal(false);
   };
 
   return (
@@ -170,14 +184,64 @@ export const ClientCard: React.FC<ClientCardProps> = ({ client, onEdit, onDelete
 
         {/* Action Buttons */}
         <div className="flex gap-2">
-          <button className="flex-1 px-3 py-2 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700 transition-colors">
+          <button
+            onClick={() => setShowMessageModal(true)}
+            className="flex-1 px-3 py-2 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700 transition-colors"
+          >
             Send Message
           </button>
-          <button className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+          <button
+            onClick={() => setShowDetailsDrawer(true)}
+            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 text-sm rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+          >
             View Details
           </button>
         </div>
       </div>
+
+      {/* Send Message Modal */}
+      {showMessageModal && (
+        <SendMessageModal
+          client={{
+            id: client.id,
+            name: client.name,
+            phone: client.phone,
+            email: client.email,
+            preferredContact: client.preferredContact,
+          }}
+          onSend={handleSendMessage}
+          onClose={() => setShowMessageModal(false)}
+        />
+      )}
+
+      {/* Client Details Drawer */}
+      {showDetailsDrawer && (
+        <ClientDetailsDrawer
+          isOpen={showDetailsDrawer}
+          client={client}
+          onClose={() => setShowDetailsDrawer(false)}
+          onEdit={onEdit}
+          onCreateQuote={() => setShowCreateQuote(true)}
+        />
+      )}
+
+      {/* Create Quote Modal */}
+      {showCreateQuote && (
+        <QuoteFormModal
+          quote={null}
+          preselectedClientId={client.id}
+          onSave={(quote) => {
+            addQuote({
+              ...quote,
+              id: Date.now().toString(),
+              status: "draft",
+              createdDate: new Date().toLocaleDateString(),
+            });
+            setShowCreateQuote(false);
+          }}
+          onClose={() => setShowCreateQuote(false)}
+        />
+      )}
     </div>
   );
 };

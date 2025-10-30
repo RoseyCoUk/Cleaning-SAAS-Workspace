@@ -12,6 +12,7 @@ export interface Invoice {
   services: string[];
   jobId?: string; // Link to the job that generated this invoice
   notes?: string; // Internal notes (not sent to client)
+  lastReminderSent?: string; // ISO timestamp of last payment reminder sent
 }
 
 export interface Job {

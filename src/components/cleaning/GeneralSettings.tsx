@@ -7,13 +7,13 @@ export const GeneralSettings = () => {
     companyName: "CleanPro Services",
     email: "admin@cleanpro.com",
     phone: "+1 (555) 123-4567",
-    address: "123 Business Ave, Suite 100",
-    city: "New York",
-    state: "NY",
-    zipCode: "10001",
+    address: "456 Main Street, Suite 200",
+    city: "Springfield",
+    state: "MO",
+    zipCode: "65801",
     taxId: "12-3456789",
     currency: "USD",
-    timezone: "America/New_York",
+    timezone: "America/Chicago",
     dateFormat: "MM/DD/YYYY",
     language: "en",
     autoBackup: true,
@@ -188,38 +188,6 @@ export const GeneralSettings = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Currency
-                </label>
-                <select
-                  value={settings.currency}
-                  onChange={(e) => handleInputChange("currency", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
-                  <option value="USD">USD - US Dollar</option>
-                  <option value="EUR">EUR - Euro</option>
-                  <option value="GBP">GBP - British Pound</option>
-                  <option value="CAD">CAD - Canadian Dollar</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Timezone
-                </label>
-                <select
-                  value={settings.timezone}
-                  onChange={(e) => handleInputChange("timezone", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
-                  <option value="America/New_York">Eastern Time</option>
-                  <option value="America/Chicago">Central Time</option>
-                  <option value="America/Denver">Mountain Time</option>
-                  <option value="America/Los_Angeles">Pacific Time</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Date Format
                 </label>
                 <select
@@ -227,27 +195,20 @@ export const GeneralSettings = () => {
                   onChange={(e) => handleInputChange("dateFormat", e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 >
-                  <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                  <option value="MM/DD/YYYY">MM/DD/YYYY (US Format)</option>
                   <option value="DD/MM/YYYY">DD/MM/YYYY</option>
                   <option value="YYYY-MM-DD">YYYY-MM-DD</option>
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Language
-                </label>
-                <select
-                  value={settings.language}
-                  onChange={(e) => handleInputChange("language", e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                >
-                  <option value="en">English</option>
-                  <option value="es">Spanish</option>
-                  <option value="fr">French</option>
-                  <option value="de">German</option>
-                </select>
-              </div>
+              {/* Currency, Timezone, and Language removed per client request (GAP-027) */}
+              {/* Client in Missouri, always USD, always same timezone, always English */}
+            </div>
+
+            <div className="bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+              <p className="text-sm text-blue-700 dark:text-blue-400">
+                <strong>Note:</strong> Currency (USD), Timezone (Central Time), and Language (English) are set to match your business location in Missouri.
+              </p>
             </div>
           </div>
         )}

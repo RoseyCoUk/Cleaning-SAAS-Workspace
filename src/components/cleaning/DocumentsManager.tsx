@@ -147,7 +147,7 @@ const DocumentUploadModal: React.FC<DocumentUploadModalProps> = ({ onSave, onClo
               </label>
               <input
                 type="url"
-                required={docType !== "pdf"}
+                required
                 value={formData.url}
                 onChange={(e) => setFormData({ ...formData, url: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500"

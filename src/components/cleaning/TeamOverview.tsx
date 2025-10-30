@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { UserCircleIcon, MailIcon, EnvelopeIcon, TimeIcon, PencilIcon } from "@/icons";
+import { UserCircleIcon, MailIcon, EnvelopeIcon, TimeIcon, PencilIcon, CheckCircleIcon } from "@/icons";
 import { Modal } from "@/components/ui/modal";
 import Badge from "@/components/ui/badge/Badge";
 

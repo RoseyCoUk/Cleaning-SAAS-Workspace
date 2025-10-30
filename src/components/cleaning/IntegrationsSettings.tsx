@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { CheckCircleIcon, DollarLineIcon, MailIcon, PieChartIcon, CalenderIcon, ChatIcon } from "@/icons";
+import { CheckCircleIcon, MailIcon, CalenderIcon } from "@/icons";
 
 interface Integration {
   id: string;
@@ -16,34 +16,12 @@ interface Integration {
 }
 
 export const IntegrationsSettings = () => {
+  // GAP-028: Removed unnecessary integrations per client request
+  // Removed: Stripe, PayPal, SendGrid, MailChimp, Zapier, QuickBooks
+  // Kept: Twilio, Google Calendar, Resend, Google Drive
   const [integrations, setIntegrations] = useState<Integration[]>([
     {
       id: "1",
-      name: "Stripe",
-      description: "Process payments and manage billing automatically",
-      category: "payment",
-      isConnected: true,
-      logoUrl: "/logos/stripe.png",
-      features: ["Payment Processing", "Subscription Billing", "Invoicing"],
-      status: "active",
-      lastSync: "2 minutes ago",
-      settings: {
-        publicKey: "pk_test_...",
-        webhookUrl: "https://app.cleanpro.com/webhooks/stripe"
-      }
-    },
-    {
-      id: "2",
-      name: "PayPal",
-      description: "Alternative payment processing solution",
-      category: "payment",
-      isConnected: false,
-      logoUrl: "/logos/paypal.png",
-      features: ["Payment Processing", "PayPal Checkout", "Express Payments"],
-      status: "inactive"
-    },
-    {
-      id: "3",
       name: "Twilio",
       description: "Send SMS notifications and reminders to customers",
       category: "communication",
@@ -58,32 +36,7 @@ export const IntegrationsSettings = () => {
       }
     },
     {
-      id: "4",
-      name: "SendGrid",
-      description: "Email delivery service for notifications and marketing",
-      category: "communication",
-      isConnected: true,
-      logoUrl: "/logos/sendgrid.png",
-      features: ["Email Delivery", "Templates", "Analytics"],
-      status: "error",
-      lastSync: "1 hour ago",
-      settings: {
-        apiKey: "SG...",
-        fromEmail: "notifications@cleanpro.com"
-      }
-    },
-    {
-      id: "5",
-      name: "QuickBooks",
-      description: "Sync financial data and automate bookkeeping",
-      category: "accounting",
-      isConnected: false,
-      logoUrl: "/logos/quickbooks.png",
-      features: ["Financial Sync", "Invoice Management", "Expense Tracking"],
-      status: "inactive"
-    },
-    {
-      id: "6",
+      id: "2",
       name: "Google Calendar",
       description: "Sync appointments with Google Calendar",
       category: "calendar",
@@ -94,37 +47,39 @@ export const IntegrationsSettings = () => {
       lastSync: "Just now"
     },
     {
-      id: "7",
-      name: "Mailchimp",
-      description: "Email marketing and customer communication",
-      category: "marketing",
-      isConnected: false,
-      logoUrl: "/logos/mailchimp.png",
-      features: ["Email Campaigns", "Customer Segmentation", "Analytics"],
-      status: "inactive"
+      id: "3",
+      name: "Resend",
+      description: "Modern email delivery service for transactional emails",
+      category: "communication",
+      isConnected: true,
+      logoUrl: "/logos/resend.png",
+      features: ["Email Delivery", "Templates", "Real-time Analytics"],
+      status: "active",
+      lastSync: "1 minute ago",
+      settings: {
+        apiKey: "re_...",
+        fromEmail: "notifications@cleanpro.com"
+      }
     },
     {
-      id: "8",
-      name: "Zapier",
-      description: "Connect with 3000+ apps and automate workflows",
-      category: "marketing",
-      isConnected: true,
-      logoUrl: "/logos/zapier.png",
-      features: ["Workflow Automation", "App Connections", "Triggers"],
-      status: "pending",
-      lastSync: "Syncing..."
+      id: "4",
+      name: "Google Drive",
+      description: "Store and manage documents in the cloud",
+      category: "calendar",
+      isConnected: false,
+      logoUrl: "/logos/google-drive.png",
+      features: ["File Storage", "Document Sharing", "Backup"],
+      status: "inactive"
     }
   ]);
 
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const [showConnectionModal, setShowConnectionModal] = useState<Integration | null>(null);
 
+  // Simplified categories (removed payment, accounting, marketing per GAP-028)
   const categories = [
-    { id: "payment", label: "Payments", icon: "dollar", color: "blue" },
     { id: "communication", label: "Communication", icon: "mail", color: "green" },
-    { id: "accounting", label: "Accounting", icon: "chart", color: "purple" },
-    { id: "calendar", label: "Calendar", icon: "calendar", color: "red" },
-    { id: "marketing", label: "Marketing", icon: "chat", color: "yellow" }
+    { id: "calendar", label: "Calendar & Storage", icon: "calendar", color: "red" }
   ];
 
   const getStatusColor = (status: string) => {
@@ -300,11 +255,8 @@ export const IntegrationsSettings = () => {
                 : "bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700"
             }`}
           >
-            {category.icon === "dollar" && <DollarLineIcon className="w-4 h-4" />}
             {category.icon === "mail" && <MailIcon className="w-4 h-4" />}
-            {category.icon === "chart" && <PieChartIcon className="w-4 h-4" />}
             {category.icon === "calendar" && <CalenderIcon className="w-4 h-4" />}
-            {category.icon === "chat" && <ChatIcon className="w-4 h-4" />}
             <span>{category.label}</span>
           </button>
         ))}
@@ -326,7 +278,7 @@ export const IntegrationsSettings = () => {
                     {integration.name}
                   </h3>
                   <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryColor(integration.category)}`}>
-                    {integration.category.charAt(0).toUpperCase() + integration.category.slice(1)}
+                    {categories.find(c => c.id === integration.category)?.label || integration.category.charAt(0).toUpperCase() + integration.category.slice(1)}
                   </span>
                 </div>
               </div>

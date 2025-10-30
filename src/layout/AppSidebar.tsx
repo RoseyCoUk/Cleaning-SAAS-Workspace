@@ -87,7 +87,6 @@ const othersItems: NavItem[] = [
     name: "Reports",
     subItems: [
       { name: "Revenue Analytics", path: "/reports/revenue", pro: false },
-      { name: "Staff Performance", path: "/reports/performance", pro: false },
       { name: "Customer Insights", path: "/reports/customers", pro: false },
     ],
   },

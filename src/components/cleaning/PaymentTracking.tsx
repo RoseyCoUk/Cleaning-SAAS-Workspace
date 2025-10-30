@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import { CheckCircleIcon } from "@/icons";
+import { CheckCircleIcon, DownloadIcon } from "@/icons";
+import { exportToCSV, prepareDataForExport } from "@/utils/exportUtils";
 
 interface Payment {
   id: string;
@@ -125,6 +126,61 @@ export const PaymentTracking = () => {
   const cardPayments = payments.filter(p => p.method === "card" && p.status === "completed");
   const cardAmount = cardPayments.reduce((sum, payment) => sum + payment.amount, 0);
 
+  const handleExportPayments = () => {
+    // Helper to parse dates safely for Safari compatibility
+    const parseDate = (dateStr: string): string => {
+      // Try parsing as-is first
+      let parsed = Date.parse(dateStr);
+
+      // If invalid, try adding " UTC" for Safari compatibility
+      if (isNaN(parsed)) {
+        parsed = Date.parse(`${dateStr} UTC`);
+      }
+
+      // If still invalid, return original string
+      if (isNaN(parsed)) {
+        return dateStr;
+      }
+
+      // Return ISO format
+      return new Date(parsed).toISOString().split('T')[0];
+    };
+
+    // Format data before export
+    const formattedPayments = filteredPayments.map(payment => ({
+      ...payment,
+      amount: payment.amount.toFixed(2), // Format to 2 decimals
+      date: parseDate(payment.date) // Convert to ISO date format (Safari-safe)
+    }));
+
+    const exportData = prepareDataForExport(formattedPayments, [
+      "transactionId",
+      "date",
+      "clientName",
+      "invoiceNumber",
+      "amount",
+      "method",
+      "status",
+      "description"
+    ]);
+
+    // Add total row
+    const totalAmount = filteredPayments.reduce((sum, p) => sum + p.amount, 0);
+    exportData.push({
+      transactionId: "TOTAL",
+      date: "",
+      clientName: "",
+      invoiceNumber: "",
+      amount: totalAmount.toFixed(2),
+      method: "",
+      status: "",
+      description: `Total of ${filteredPayments.length} payment(s)`
+    });
+
+    const timestamp = new Date().toISOString().split('T')[0];
+    exportToCSV(exportData, `payment-report-${timestamp}`);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -141,8 +197,12 @@ export const PaymentTracking = () => {
           </p>
         </div>
         <div className="mt-4 md:mt-0 flex gap-2 flex-wrap">
-          <button className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg transition-colors">
-            <span>Export Report</span>
+          <button
+            onClick={handleExportPayments}
+            className="bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+          >
+            <DownloadIcon className="w-4 h-4" />
+            <span>Export Report ({filteredPayments.length} payments)</span>
           </button>
         </div>
       </div>

@@ -5,6 +5,7 @@ import { PaymentRecordModal, type PaymentRecord } from "./PaymentRecordModal";
 import { InvoiceDetailModal } from "./InvoiceDetailModal";
 import { CreateInvoiceModal } from "./CreateInvoiceModal";
 import { EditInvoiceModal } from "./EditInvoiceModal";
+import { SendReminderModal } from "./SendReminderModal";
 import { useInvoices } from "@/contexts/InvoiceContext";
 import { useClients } from "@/contexts/ClientContext";
 import { generateInvoiceNumber, formatDate, calculateDueDate, parseDuration } from "@/utils/invoiceUtils";
@@ -18,6 +19,7 @@ export const InvoiceManagement = () => {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showReminderModal, setShowReminderModal] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("all");
 
@@ -100,8 +102,35 @@ export const InvoiceManagement = () => {
   };
 
   const handleSendReminder = () => {
-    alert("Payment reminder sent to client");
-    // In production: API call to send reminder email/SMS
+    setShowReminderModal(true);
+  };
+
+  const handleSendReminders = (selectedInvoiceIds: string[], channel: "email" | "sms") => {
+    const selectedInvoices = invoices.filter(inv => selectedInvoiceIds.includes(inv.id));
+    const clientNames = [...new Set(selectedInvoices.map(inv => inv.clientName))];
+    const totalAmount = selectedInvoices.reduce((sum, inv) => sum + inv.amount, 0);
+
+    // Simulate sending reminders through messaging layer
+    console.log("Sending reminders via", channel, "for invoices:", selectedInvoiceIds);
+
+    // Update invoice records with lastReminderSent timestamp
+    const timestamp = new Date().toISOString();
+    selectedInvoiceIds.forEach(id => {
+      updateInvoice(id, {
+        lastReminderSent: timestamp
+      });
+    });
+
+    alert(
+      `SUCCESS: Payment Reminders Sent!\n\n` +
+      `Sent ${selectedInvoices.length} reminder${selectedInvoices.length !== 1 ? 's' : ''} via ${channel.toUpperCase()}\n` +
+      `Recipients: ${clientNames.length} client${clientNames.length !== 1 ? 's' : ''}\n` +
+      `Total outstanding: $${totalAmount.toFixed(2)}\n\n` +
+      `Clients notified:\n${clientNames.map(name => `• ${name}`).join('\n')}\n\n` +
+      `Timestamp: ${new Date(timestamp).toLocaleString()}`
+    );
+
+    setShowReminderModal(false);
   };
 
   const openPaymentModal = (invoice: Invoice) => {
@@ -536,6 +565,15 @@ export const InvoiceManagement = () => {
             setShowEditModal(false);
             setSelectedInvoice(null);
           }}
+        />
+      )}
+
+      {/* Send Reminder Modal */}
+      {showReminderModal && (
+        <SendReminderModal
+          invoices={invoices}
+          onClose={() => setShowReminderModal(false)}
+          onSend={handleSendReminders}
         />
       )}
     </div>
